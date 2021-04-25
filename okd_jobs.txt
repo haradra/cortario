@@ -1,0 +1,64 @@
+kind: Job
+apiVersion: batch/v1
+metadata:
+  name: cortario-no-retina
+  namespace: 2162979kproject
+  selfLink: /apis/batch/v1/namespaces/2162979kproject/jobs/cortario-no-retina
+  uid: 214f2559-5fe8-11eb-8408-ac1f6bba3f6e
+  resourceVersion: '115639206'
+  creationTimestamp: '2021-01-26T15:06:56Z'
+  labels:
+    controller-uid: 214f2559-5fe8-11eb-8408-ac1f6bba3f6e
+    job-name: cortario-no-retina
+spec:
+  parallelism: 1
+  completions: 1
+  backoffLimit: 0
+  selector:
+    matchLabels:
+      controller-uid: 214f2559-5fe8-11eb-8408-ac1f6bba3f6e
+  template:
+    metadata:
+      name: cortario-no-retina
+      creationTimestamp: null
+      labels:
+        controller-uid: 214f2559-5fe8-11eb-8408-ac1f6bba3f6e
+        job-name: cortario-no-retina
+    spec:
+      volumes:
+        - name: nfs-access
+          persistentVolumeClaim:
+            claimName: 2162979kvol1claim
+      containers:
+        - name: cortario-no-retina-container
+          image: 'haradra/cortario:v3'
+          command:
+            - /bin/bash
+            - '-c'
+            - >-
+              cd /nfs/MarioRet/marioretina && python PPO/train.py --saved_path
+              cortario_no_retina --no-retina
+          resources:
+            limits:
+              cpu: '4'
+              memory: 8Gi
+              nvidia.com/gpu: '1'
+            requests:
+              cpu: '1'
+              memory: 2Gi
+              nvidia.com/gpu: '1'
+          volumeMounts:
+            - name: nfs-access
+              mountPath: /nfs
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+          imagePullPolicy: IfNotPresent
+      restartPolicy: Never
+      terminationGracePeriodSeconds: 30
+      dnsPolicy: ClusterFirst
+      securityContext: {}
+      schedulerName: default-scheduler
+status:
+  startTime: '2021-01-26T15:06:56Z'
+  active: 1
+
